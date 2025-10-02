@@ -1,7 +1,4 @@
 using UnityEngine;
-using TMPro;
-using UnityEngine.SceneManagement;
-using System.IO;
 using UnityEngine.UI;
 
 public class PauseUI : MonoBehaviour
@@ -12,7 +9,7 @@ public class PauseUI : MonoBehaviour
     private AudioSource _audioSource;
     private bool _pauseIsActive;
 
-    private void Awake() 
+    private void Awake()
     {
         _pauseIsActive = false;
         _pauseUI.SetActive(_pauseIsActive);
@@ -38,24 +35,21 @@ public class PauseUI : MonoBehaviour
             _pauseButton.onClick.AddListener(Unpause);
             _exitButton.onClick.AddListener(ExitToMenu);
         }
-        
+
         Time.timeScale = isActive ? 0f : 1f;
         _pauseIsActive = isActive;
 
         if (isActive)
         {
-            _audioSource.volume = SettingsManager.Instance.Settings.Volume / 3;
+            _audioSource.volume = SettingsManager.Instance.Settings.volume / 3;
         }
         else
         {
-            _audioSource.volume = SettingsManager.Instance.Settings.Volume;
+            _audioSource.volume = SettingsManager.Instance.Settings.volume;
         }
     }
 
-    private void Unpause()
-    {
-        Pause(false);
-    }
+    private void Unpause() => Pause(false);
 
     private void ExitToMenu()
     {

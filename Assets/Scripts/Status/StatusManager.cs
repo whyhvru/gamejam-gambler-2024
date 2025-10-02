@@ -14,26 +14,26 @@ public class StatusManager : MonoBehaviour
 
     private void Start()
     {
-        _currentBalance = DataManager.Instance.SaveData.Balance;
-        _currentDebt = DataManager.Instance.SaveData.Debts;
+        _currentBalance = DataManager.Instance.SaveData.balance;
+        _currentDebt = DataManager.Instance.SaveData.debts;
 
         UpdateUI();
     }
 
     private void Update()
     {
-        if (_currentBalance != DataManager.Instance.SaveData.Balance)
+        if (_currentBalance != DataManager.Instance.SaveData.balance)
         {
             _preBalance = _currentBalance;
-            _currentBalance = DataManager.Instance.SaveData.Balance;
+            _currentBalance = DataManager.Instance.SaveData.balance;
 
             UpdateUIWithScrolling(_balanceText, _preBalance, _currentBalance);
         }
 
-        if (_currentDebt != DataManager.Instance.SaveData.Debts)
+        if (_currentDebt != DataManager.Instance.SaveData.debts)
         {
             _preDebt = _currentDebt;
-            _currentDebt = DataManager.Instance.SaveData.Debts;
+            _currentDebt = DataManager.Instance.SaveData.debts;
 
             UpdateUIWithScrolling(_debtText, _preDebt, _currentDebt);
         }
@@ -45,10 +45,8 @@ public class StatusManager : MonoBehaviour
         _debtText.text = FormatBalance(_currentDebt);
     }
 
-    private void UpdateUIWithScrolling(TextMeshProUGUI text, float start, float target)
-    {
+    private void UpdateUIWithScrolling(TextMeshProUGUI text, float start, float target) =>
         StartCoroutine(ScrollingUpdate(text, start, target));
-    }
 
     private IEnumerator ScrollingUpdate(TextMeshProUGUI text, float start, float target)
     {

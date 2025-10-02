@@ -15,19 +15,19 @@ public class DayReport : MonoBehaviour
 
     private float _currentBalance;
 
-    private void Start() 
+    private void Start()
     {
         UpdateStats();
         _sleepButton.onClick.AddListener(Sleep);
-        _currentBalance = DataManager.Instance.SaveData.Balance;
+        _currentBalance = DataManager.Instance.SaveData.balance;
         UpdateBalance();
     }
 
     private void UpdateStats()
     {
-        _balance.text = $"Текущий_баланс: ${DataManager.Instance.SaveData.Balance:F2}";
-        _win.text = $"Заработано: ${DataManager.Instance.SaveData.DailyIncome:F2}";
-        _loss.text = $"Потрачено: ${DataManager.Instance.SaveData.DailyLesion:F2}";
+        _balance.text = $"Текущий_баланс: ${DataManager.Instance.SaveData.balance:F2}";
+        _win.text = $"Заработано: ${DataManager.Instance.SaveData.dailyIncome:F2}";
+        _loss.text = $"Потрачено: ${DataManager.Instance.SaveData.dailyLesion:F2}";
     }
 
     private void UpdateBalance()
@@ -105,7 +105,7 @@ public class DayReport : MonoBehaviour
 
     private void ClearDailyStats()
     {
-        DataManager.Instance.SaveData.DailyIncome = 0;
-        DataManager.Instance.SaveData.DailyLesion = 0;
+        DataManager.Instance.SaveData.dailyIncome = 0;
+        DataManager.Instance.SaveData.dailyLesion = 0;
     }
 }

@@ -7,9 +7,9 @@ using UnityEngine.EventSystems;
 public class SlotMachine : MonoBehaviour
 {
     [Header("UI Elements")]
-    [SerializeField] private RectTransform slot1;
-    [SerializeField] private RectTransform slot2;
-    [SerializeField] private RectTransform slot3;
+    [SerializeField] private RectTransform _slot1;
+    [SerializeField] private RectTransform _slot2;
+    [SerializeField] private RectTransform _slot3;
     [SerializeField] private Button _startButton;
     [SerializeField] private GameObject _betWindow;
     [SerializeField] private TextMeshProUGUI _betText;
@@ -22,146 +22,111 @@ public class SlotMachine : MonoBehaviour
 
     [Header("Slot Settings")]
     [SerializeField] private float _minBet = 50f;
-    [SerializeField] private float acceleration = 0.1f;
-    [SerializeField] private float deceleration = 0.2f;
-    [SerializeField] private float maxSpeed = 1500f;
-    [SerializeField] private float minSpeed = 500f;
+    [SerializeField] private float _acceleration = 0.1f;
+    [SerializeField] private float _deceleration = 0.2f;
+    [SerializeField] private float _maxSpeed = 1500f;
+    [SerializeField] private float _minSpeed = 500f;
 
-    [Header("Other")]
+    [Header("Dependencies")]
     [SerializeField] private MessageManager _messageManager;
-    [SerializeField] private SlotMachineSound _slotMachineSound;
-    
-    [Header("Other")]
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _spinSound;
     [SerializeField] private AudioClip _youWonSound;
 
-    private readonly float[] slotPositions = { -574f, -446f, -318f, -190f, -62f, 66f, 194f, 322f, 446f };
-    private bool _isGameRunning = false;
+    private readonly float[] _slotPositions = { -574f, -446f, -318f, -190f, -62f, 66f, 194f, 322f, 446f };
+
     private float _currentBet;
     private float _currentBalance;
-    private bool _isBetConfirmed = false;
-    private bool _isIncreasing = false;
-    private bool _isDecreasing = false;
-    private float _changeRate = 10f;
-    private float _holdDelay = 0.1f;
+    private float _betChangeDelta;
+    private bool _isGameRunning;
+    private bool _isBetConfirmed;
+
+    private const float ChangeRate = 10f;
+    private const float HoldDelay = 0.1f;
 
     private void OnEnable()
     {
-        _currentBalance = DataManager.Instance.SaveData.Balance;
+        RefreshBalance();
         UpdateUI();
     }
 
     private void Start()
     {
-        _currentBalance = DataManager.Instance.SaveData.Balance;
+        RefreshBalance();
         UpdateUI();
 
         _startButton.onClick.AddListener(OnStartButtonClick);
         _confirmBetButton.onClick.AddListener(ConfirmBet);
-        _cancelBetButton.onClick.AddListener(CancelBet);
+        _cancelBetButton.onClick.AddListener(() => _betWindow.SetActive(false));
 
-        AddHoldListener(_increaseBetButton, () => _isIncreasing = true, () => _isIncreasing = false);
-        AddHoldListener(_decreaseBetButton, () => _isDecreasing = true, () => _isDecreasing = false);
+        AddHoldListener(_increaseBetButton, () => _betChangeDelta = ChangeRate, () => _betChangeDelta = 0);
+        AddHoldListener(_decreaseBetButton, () => _betChangeDelta = -ChangeRate, () => _betChangeDelta = 0);
 
-        _maxBetButton.onClick.AddListener(SetMaxBet);
-        _minBetButton.onClick.AddListener(SetMinBet);
+        _maxBetButton.onClick.AddListener(() => SetBet(Mathf.Floor(_currentBalance / ChangeRate) * ChangeRate));
+        _minBetButton.onClick.AddListener(() => SetBet(_minBet));
 
         _betWindow.SetActive(false);
 
-        InvokeRepeating(nameof(UpdateBet), _holdDelay, _holdDelay);
+        InvokeRepeating(nameof(UpdateBet), HoldDelay, HoldDelay);
     }
 
     private void UpdateBet()
     {
-        if (_isIncreasing)
-        {
-            ChangeBet(_changeRate);
-        }
-        if (_isDecreasing)
-        {
-            ChangeBet(-_changeRate);
-        }
+        if (_betChangeDelta != 0) ChangeBet(_betChangeDelta);
     }
 
     private void AddHoldListener(Button button, System.Action onPress, System.Action onRelease)
     {
-        EventTrigger trigger = button.gameObject.AddComponent<EventTrigger>();
+        var trigger = button.gameObject.AddComponent<EventTrigger>();
 
-        EventTrigger.Entry pointerDown = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerDown
-        };
-        pointerDown.callback.AddListener(_ => onPress());
-        trigger.triggers.Add(pointerDown);
+        trigger.triggers.Add(CreateEvent(EventTriggerType.PointerDown, _ => onPress()));
+        trigger.triggers.Add(CreateEvent(EventTriggerType.PointerUp, _ => onRelease()));
+    }
 
-        EventTrigger.Entry pointerUp = new EventTrigger.Entry
+    private EventTrigger.Entry CreateEvent(EventTriggerType type, UnityEngine.Events.UnityAction<BaseEventData> callback)
+    {
+        EventTrigger.Entry entry = new()
         {
-            eventID = EventTriggerType.PointerUp
+            eventID = type,
+            callback = new EventTrigger.TriggerEvent()
         };
-        pointerUp.callback.AddListener(_ => onRelease());
-        trigger.triggers.Add(pointerUp);
+        entry.callback.AddListener(callback);
+        return entry;
     }
 
     private void OnStartButtonClick()
     {
-        if (!_isGameRunning)
-        {
-            if (!_isBetConfirmed)
-            {
-                OpenBetWindow();
-            }
-            else
-            {
-                StartGame();
-            }
-        }
+        if (_isGameRunning) return;
+
+        if (!_isBetConfirmed)
+            OpenBetWindow();
+        else
+            StartGame();
     }
 
     private void OpenBetWindow()
     {
-        _betText.text = $"{_currentBet:F2}";
+        _betText.text = $"{_currentBet:F0}";
         _betWindow.SetActive(true);
     }
 
     private void ConfirmBet()
     {
-        if (_currentBet >= _minBet && _currentBet <= _currentBalance)
+        if (_currentBet < _minBet || _currentBet > _currentBalance)
         {
-            _isBetConfirmed = true;
-            _betWindow.SetActive(false);
+            Debug.LogWarning($"Некорректная ставка. Ставка должна быть от {_minBet} до {_currentBalance}.");
+            return;
         }
-        else
-        {
-            Debug.LogWarning($"Некорректная ставка. Ставка должна быть в пределах от {_minBet} до {_currentBalance}.");
-        }
-    }
 
-    private void CancelBet()
-    {
+        _isBetConfirmed = true;
         _betWindow.SetActive(false);
     }
 
-    private void ChangeBet(float delta)
+    private void ChangeBet(float delta) => SetBet(Mathf.Clamp(_currentBet + delta, _minBet, Mathf.Floor(_currentBalance)));
+
+    private void SetBet(float value)
     {
-        float newBet = _currentBet + delta;
-
-        newBet = Mathf.Clamp(newBet, _minBet, Mathf.Floor(_currentBalance));
-
-        _currentBet = Mathf.Floor(newBet / _changeRate) * _changeRate;
-
-        _betText.text = $"{_currentBet:F0}";
-    }
-
-    private void SetMaxBet()
-    {
-        _currentBet = Mathf.Floor(_currentBalance / _changeRate) * _changeRate;
-        _betText.text = $"{_currentBet:F0}";
-    }
-
-    private void SetMinBet()
-    {
-        _currentBet = _minBet;
+        _currentBet = Mathf.Floor(value / ChangeRate) * ChangeRate;
         _betText.text = $"{_currentBet:F0}";
     }
 
@@ -172,24 +137,19 @@ public class SlotMachine : MonoBehaviour
         _startButton.interactable = false;
 
         StartCoroutine(SpinCoroutine());
-        Debug.Log("StartCoroutine(SpinCoroutine()) запущен");
     }
 
     private IEnumerator SpinCoroutine()
     {
-        float slot1Speed = Random.Range(minSpeed, maxSpeed);
-        float slot2Speed = Random.Range(minSpeed, maxSpeed);
-        float slot3Speed = Random.Range(minSpeed, maxSpeed);
+        var spin1 = StartCoroutine(SpinSlot(_slot1, Random.Range(_minSpeed, _maxSpeed), 0f));
+        var spin2 = StartCoroutine(SpinSlot(_slot2, Random.Range(_minSpeed, _maxSpeed), 0.5f));
+        var spin3 = StartCoroutine(SpinSlot(_slot3, Random.Range(_minSpeed, _maxSpeed), 1f));
 
-        Coroutine spinSlot1 = StartCoroutine(SpinSlot(slot1, slot1Speed, 0f));
-        Coroutine spinSlot2 = StartCoroutine(SpinSlot(slot2, slot2Speed, 0.5f));
-        Coroutine spinSlot3 = StartCoroutine(SpinSlot(slot3, slot3Speed, 1f));
+        PlaySound(_spinSound, 0.7f);
 
-        PlaySpinSound();
-
-        yield return spinSlot1;
-        yield return spinSlot2;
-        yield return spinSlot3;
+        yield return spin1;
+        yield return spin2;
+        yield return spin3;
 
         CheckResult();
 
@@ -198,61 +158,57 @@ public class SlotMachine : MonoBehaviour
         UpdateUI();
     }
 
-    private IEnumerator SpinSlot(RectTransform slot, float initialSpeed, float delay)
+    private IEnumerator SpinSlot(RectTransform slot, float targetSpeed, float delay)
     {
         yield return new WaitForSeconds(delay);
-        
-        float speed = 0f;
-        float elapsedTime = 0f;
 
-        while (speed < initialSpeed)
+        float speed = 0f;
+        float elapsed = 0f;
+
+        while (speed < targetSpeed)
         {
-            speed += acceleration * Time.deltaTime;
+            speed += _acceleration * Time.deltaTime;
             MoveSlot(slot, speed);
             yield return null;
         }
 
-        while (elapsedTime < 2f)
+        while (elapsed < 2f)
         {
             MoveSlot(slot, speed);
-            elapsedTime += Time.deltaTime;
+            elapsed += Time.deltaTime;
             yield return null;
         }
 
         while (speed > 0)
         {
-            speed -= deceleration * Time.deltaTime;
+            speed -= _deceleration * Time.deltaTime;
             MoveSlot(slot, speed);
             yield return null;
         }
 
-        float closestPosition = FindClosestPosition(slot.anchoredPosition.y);
-        slot.anchoredPosition = new Vector2(slot.anchoredPosition.x, closestPosition);
+        float snapPos = FindClosestPosition(slot.anchoredPosition.y);
+        slot.anchoredPosition = new Vector2(slot.anchoredPosition.x, snapPos);
     }
 
     private void MoveSlot(RectTransform slot, float speed)
     {
         slot.anchoredPosition -= new Vector2(0, speed * Time.deltaTime);
-
         if (slot.anchoredPosition.y <= -574f)
-        {
-            Debug.Log("Возвращение");
             slot.anchoredPosition = new Vector2(slot.anchoredPosition.x, 574f);
-        }
     }
 
-    private float FindClosestPosition(float currentY)
+    private float FindClosestPosition(float y)
     {
-        float closest = slotPositions[0];
-        float minDistance = Mathf.Abs(currentY - closest);
+        float closest = _slotPositions[0];
+        float minDist = Mathf.Abs(y - closest);
 
-        foreach (float position in slotPositions)
+        foreach (float pos in _slotPositions)
         {
-            float distance = Mathf.Abs(currentY - position);
-            if (distance < minDistance)
+            float dist = Mathf.Abs(y - pos);
+            if (dist < minDist)
             {
-                closest = position;
-                minDistance = distance;
+                closest = pos;
+                minDist = dist;
             }
         }
 
@@ -261,41 +217,17 @@ public class SlotMachine : MonoBehaviour
 
     private void CheckResult()
     {
-        var winMultiplier = 0;
+        float s1 = _slot1.anchoredPosition.y;
+        float s2 = _slot2.anchoredPosition.y;
+        float s3 = _slot3.anchoredPosition.y;
 
-        var slot1Symbol = slot1.anchoredPosition.y;
-        var slot2Symbol = slot2.anchoredPosition.y;
-        var slot3Symbol = slot3.anchoredPosition.y;
+        int multiplier = GetWinMultiplier(s1, s2, s3);
 
-        if (slot1Symbol == slot2Symbol && slot2Symbol == slot3Symbol)
+        if (multiplier > 0)
         {
-            winMultiplier = 10;
-            _messageManager.AddBigWinMessage();
-            PlayYouWonSound(1f);
-        }
-        else if ((slot1Symbol == slot2Symbol && !IsSameCategory(slot1Symbol, slot3Symbol)) ||
-                (slot1Symbol == slot3Symbol && !IsSameCategory(slot1Symbol, slot2Symbol)) ||
-                (slot2Symbol == slot3Symbol && !IsSameCategory(slot2Symbol, slot1Symbol)))
-        {
-            winMultiplier = 2;
-            PlayYouWonSound(0.5f);
-        }
-        else if ((slot1Symbol == slot2Symbol && IsSameCategory(slot1Symbol, slot3Symbol)) ||
-                (slot1Symbol == slot3Symbol && IsSameCategory(slot1Symbol, slot2Symbol)) ||
-                (slot2Symbol == slot3Symbol && IsSameCategory(slot2Symbol, slot1Symbol)))
-        {
-            winMultiplier = 3;
-            PlayYouWonSound(0.7f);
-        }
-        else if (IsAllDifferentAndSameCategory(slot1Symbol, slot2Symbol, slot3Symbol))
-        {
-            winMultiplier = 1;
-            PlayYouWonSound(0.3f);
-        }
-
-        if (winMultiplier > 0)
-        {
-            UpdateBalance(_currentBet * winMultiplier);
+            UpdateBalance(_currentBet * multiplier);
+            PlaySound(_youWonSound, multiplier >= 10 ? 1f : 0.5f);
+            if (multiplier >= 10) _messageManager.AddBigWinMessage();
         }
         else if (_currentBalance < _minBet)
         {
@@ -303,56 +235,40 @@ public class SlotMachine : MonoBehaviour
         }
     }
 
-    private bool IsSameCategory(float symbol1, float symbol2)
+    private int GetWinMultiplier(float s1, float s2, float s3)
     {
-        return (IsFoodCategory(symbol1) && IsFoodCategory(symbol2)) || 
-            (IsSymbolCategory(symbol1) && IsSymbolCategory(symbol2));
+        bool allEqual = s1 == s2 && s2 == s3;
+        bool twoEqual = (s1 == s2) || (s1 == s3) || (s2 == s3);
+
+        if (allEqual) return 10;
+        if (twoEqual) return IsAllSameCategory(s1, s2, s3) ? 3 : 2;
+        if (IsAllDifferentAndSameCategory(s1, s2, s3)) return 1;
+
+        return 0;
     }
 
-    private bool IsAllDifferentAndSameCategory(float symbol1, float symbol2, float symbol3)
-    {
-        return symbol1 != symbol2 && symbol2 != symbol3 && symbol1 != symbol3 && 
-            ((IsFoodCategory(symbol1) && IsFoodCategory(symbol2) && IsFoodCategory(symbol3)) ||
-                (IsSymbolCategory(symbol1) && IsSymbolCategory(symbol2) && IsSymbolCategory(symbol3)));
-    }
+    private bool IsAllSameCategory(float s1, float s2, float s3) =>
+        (IsFood(s1) && IsFood(s2) && IsFood(s3)) ||
+        (IsSymbol(s1) && IsSymbol(s2) && IsSymbol(s3));
 
-    private bool IsFoodCategory(float symbol)
-    {
-        return symbol == -574f || symbol == -446f || symbol == -318f || symbol == -190f;
-    }
+    private bool IsAllDifferentAndSameCategory(float s1, float s2, float s3) =>
+        s1 != s2 && s2 != s3 && s1 != s3 && IsAllSameCategory(s1, s2, s3);
 
-    private bool IsSymbolCategory(float symbol)
-    {
-        return symbol == -62f || symbol == 66f || symbol == 194f || symbol == 322f || symbol == 446f;
-    }
-
-    private void UpdateUI()
-    {
-        _startButton.interactable = _currentBalance >= _minBet;
-    }
+    private bool IsFood(float y) => y is -574f or -446f or -318f or -190f;
+    private bool IsSymbol(float y) => y is -62f or 66f or 194f or 322f or 446f;
+    private void UpdateUI() => _startButton.interactable = _currentBalance >= _minBet;
+    private void RefreshBalance() => _currentBalance = DataManager.Instance.SaveData.balance;
 
     private void UpdateBalance(float value)
     {
         DataManager.Instance.ChangeBalance(value);
-        _currentBalance = DataManager.Instance.SaveData.Balance;
-    }
-
-    public void PlaySpinSound()
-    {
-        PlaySound(_spinSound, 0.7f);
-    }
-
-    public void PlayYouWonSound(float volumeMultiplier)
-    {
-        PlaySound(_youWonSound, volumeMultiplier);
+        RefreshBalance();
     }
 
     private void PlaySound(AudioClip clip, float volumeMultiplier)
     {
-        if (clip != null)
-        {
-            float volume = SettingsManager.Instance.Settings.Volume; 
-            _audioSource.PlayOneShot(clip, volume * volumeMultiplier);
-        }
+        if (clip == null) return;
+        float volume = SettingsManager.Instance.Settings.volume;
+        _audioSource.PlayOneShot(clip, volume * volumeMultiplier);
     }
 }

@@ -5,10 +5,11 @@ public class SceneLoader : MonoBehaviour
 {
     public static SceneLoader Instance { get; private set; }
 
-    private string _menuScene = "Menu";
-    private string _gameScene = "Game";
-    private string _tenetScene = "Tenet";
-    private string _endScene = "End";
+    private readonly string _menuScene = "Menu";
+    private readonly string _gameScene = "Game";
+    private readonly string _tenetScene = "Tenet";
+    private readonly string _endScene = "End";
+
     private string _currentScene;
 
     private void Awake()
@@ -31,23 +32,8 @@ public class SceneLoader : MonoBehaviour
         SceneManager.LoadScene(_currentScene);
     }
 
-    public void LoadMenu()
-    {
-        StartScene(_menuScene);
-    }
-
-    public void LoadGame()
-    {
-        StartScene(_gameScene);
-    }
-
-    public void LoadTenet()
-    {
-        StartScene(_tenetScene);
-    }
-
-    public void LoadEnd()
-    {
-        StartScene(_endScene);
-    }
+    public void LoadMenu() => StartScene(_menuScene);
+    public void LoadGame() => StartScene(_gameScene);
+    public void LoadTenet() => StartScene(_tenetScene);
+    public void LoadEnd() => StartScene(_endScene);
 }

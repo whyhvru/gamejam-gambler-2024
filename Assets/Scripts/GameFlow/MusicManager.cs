@@ -2,10 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(AudioSource))]
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance { get; private set; }
 
+    private const string SceneMenu = "Menu";
+    private const string SceneGame = "Game";
+    private const string SceneTenet = "Tenet";
+    private const string SceneEnd = "End";
+
+    [Header("Music Clips")]
     [SerializeField] private AudioClip _endDayMusic;
     [SerializeField] private AudioClip _mapMusic;
     [SerializeField] private AudioClip _casino1Music;
@@ -30,34 +37,38 @@ public class MusicManager : MonoBehaviour
         }
 
         _audioSource = GetComponent<AudioSource>();
-        _audioSource.volume = SettingsManager.Instance.Settings.Volume;
+        _audioSource.volume = SettingsManager.Instance.Settings.volume;
+
+        _casinoPlaylist = new Queue<AudioClip>();
+        if (_casino1Music != null) _casinoPlaylist.Enqueue(_casino1Music);
+        if (_casino2Music != null) _casinoPlaylist.Enqueue(_casino2Music);
 
         SceneManager.sceneLoaded += OnSceneLoaded;
-
-        _casinoPlaylist = new Queue<AudioClip>(new[] { _casino1Music, _casino2Music });
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        CancelInvoke(nameof(PlayNextCasinoTrack));
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         _currentScene = scene.name;
-        _audioSource.volume = SettingsManager.Instance.Settings.Volume;
+        _audioSource.volume = SettingsManager.Instance.Settings.volume;
         UpdateMusic();
     }
 
     public void OnWindowChanged(string windowName)
     {
-        if (_currentScene != "Game") return;
+        if (_currentScene != SceneGame) return;
 
         switch (windowName)
         {
             case "MapPanel":
                 PlayMusic(_mapMusic);
                 break;
+
             case "RocketPanel":
             case "SlotPanel":
                 PlayCasinoMusic();
@@ -69,14 +80,16 @@ public class MusicManager : MonoBehaviour
     {
         switch (_currentScene)
         {
-            case "Menu":
-            case "Tenet":
+            case SceneMenu:
+            case SceneTenet:
                 PlayMusic(_endDayMusic);
                 break;
-            case "Game":
+
+            case SceneGame:
                 PlayMusic(_mapMusic);
                 break;
-            case "End":
+
+            case SceneEnd:
                 PlayMusic(_endMusic);
                 break;
         }
@@ -84,18 +97,15 @@ public class MusicManager : MonoBehaviour
 
     private void PlayMusic(AudioClip clip)
     {
+        if (clip == null) return;
         if (_audioSource.clip == clip && _audioSource.isPlaying) return;
 
-        _audioSource.Stop();
-        _audioSource.clip = clip;
-        _audioSource.loop = true;
-        _audioSource.Play();
+        SetClipAndPlay(clip, loop: true);
     }
 
     private void PlayCasinoMusic()
     {
         if (_audioSource.isPlaying && _casinoPlaylist.Contains(_audioSource.clip)) return;
-
         PlayNextCasinoTrack();
     }
 
@@ -103,14 +113,19 @@ public class MusicManager : MonoBehaviour
     {
         if (_casinoPlaylist.Count == 0) return;
 
-        _audioSource.Stop();
         var nextTrack = _casinoPlaylist.Dequeue();
-        _audioSource.clip = nextTrack;
-        _audioSource.loop = false;
-        _audioSource.Play();
-
         _casinoPlaylist.Enqueue(nextTrack);
 
-        Invoke(nameof(PlayNextCasinoTrack), _audioSource.clip.length);
+        SetClipAndPlay(nextTrack, loop: false);
+
+        Invoke(nameof(PlayNextCasinoTrack), nextTrack.length);
+    }
+
+    private void SetClipAndPlay(AudioClip clip, bool loop)
+    {
+        _audioSource.Stop();
+        _audioSource.clip = clip;
+        _audioSource.loop = loop;
+        _audioSource.Play();
     }
 }

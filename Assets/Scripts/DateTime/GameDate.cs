@@ -4,32 +4,22 @@ using TMPro;
 public class GameDate : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _dateText;
-    private int _day;
-    private int _month;
-    private int _year = 24;
 
-    private void Start()
+    private DataManager _dataManager;
+
+    private void Awake() => _dataManager = DataManager.Instance;
+
+    private void OnEnable()
     {
-        _day = DataManager.Instance.SaveData.Day;
-        _month = DataManager.Instance.SaveData.Month;
-
-        UpdateUI();
+        _dataManager.OnDateChanged += HandleDateChanged;
+        HandleDateChanged();
     }
 
-    private void Update()
-    {
-        if ( _day != DataManager.Instance.SaveData.Day ||
-            _month != DataManager.Instance.SaveData.Month )
-        {
-            _day = DataManager.Instance.SaveData.Day;
-            _month = DataManager.Instance.SaveData.Month;
+    private void OnDisable() => _dataManager.OnDateChanged -= HandleDateChanged;
 
-            UpdateUI();
-        }
-    }
-
-    private void UpdateUI()
+    private void HandleDateChanged()
     {
-        _dateText.text = $"{_day:D2}.{_month:D2}.{_year}";
+        var save = _dataManager.SaveData;
+        _dateText.text = $"{save.day:D2}.{save.month:D2}.{24}";
     }
 }

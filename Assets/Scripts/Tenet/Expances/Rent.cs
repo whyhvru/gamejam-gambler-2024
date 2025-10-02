@@ -1,17 +1,12 @@
-using UnityEngine;
-
 public class Rent : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        _amount = 45f;
-        _isSelected = true;
+        amount = 45f;
+        isSelected = true;
         UpdateVisibility();
     }
 
-    protected override bool ShouldBeVisible()
-    {
-        return (DataManager.Instance.SaveData.HasAApart);
-    }
+    protected override bool ShouldBeVisible() => DataManager.Instance.SaveData.hasAApart;
 }

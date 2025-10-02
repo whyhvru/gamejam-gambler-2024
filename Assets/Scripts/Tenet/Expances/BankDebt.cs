@@ -1,16 +1,11 @@
-using UnityEngine;
-
 public class BankDebt : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        _amount = DataManager.Instance.SaveData.BankDebt;
+        amount = DataManager.Instance.SaveData.bankDebt;
         UpdateVisibility();
     }
 
-    protected override bool ShouldBeVisible()
-    {
-        return (DataManager.Instance.SaveData.BankDebt > 0f);
-    }
+    protected override bool ShouldBeVisible() => DataManager.Instance.SaveData.bankDebt > 0f;
 }

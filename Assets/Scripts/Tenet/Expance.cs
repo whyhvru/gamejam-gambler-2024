@@ -4,42 +4,36 @@ using TMPro;
 
 public class Expense : MonoBehaviour
 {
-    [SerializeField] protected string _expenseName;
-    [SerializeField] protected TextMeshProUGUI _expenseText;
-    [SerializeField] protected Button _expenseButton;
-    [SerializeField] protected bool _isSelected;
-    [SerializeField] protected Sprite _boxOn;
-    [SerializeField] protected Sprite _boxOff;
-    protected float _amount;
+    [SerializeField] protected DayReport dayReport;
+    [SerializeField] protected string expenseName;
+    [SerializeField] protected TextMeshProUGUI expenseText;
+    [SerializeField] protected Button expenseButton;
+    [SerializeField] protected bool isSelected;
+    [SerializeField] protected Sprite boxOn;
+    [SerializeField] protected Sprite boxOff;
+    protected float amount;
 
-    private DayReport _dayReport;
+    public string ExpenseName => expenseName;
+    public float Amount => amount;
+    public bool IsSelected => isSelected;
 
-    public string ExpenseName => _expenseName;
-    public float Amount => _amount;
-    public bool IsSelected => _isSelected;
-
-    protected virtual void Start()
-    {
-        _dayReport = FindObjectOfType<DayReport>();
-        _expenseButton?.onClick?.AddListener(OnExpenseSelected);
-    }
+    protected virtual void Start() => expenseButton.onClick?.AddListener(OnExpenseSelected);
 
     public void ToggleSelection()
     {
-        _isSelected = !_isSelected;
-        _expenseText.color = _isSelected ? HexToColor("#FF0000") : HexToColor("#4700DE");
+        isSelected = !isSelected;
+        expenseText.color = isSelected ? HexToColor("#FF0000") : HexToColor("#4700DE");
 
-        Image buttonImage = _expenseButton.GetComponent<Image>();
-        if (buttonImage != null)
+        if (expenseButton.TryGetComponent<Image>(out var buttonImage))
         {
-            buttonImage.sprite = _isSelected ? _boxOn : _boxOff;
+            buttonImage.sprite = isSelected ? boxOn : boxOff;
         }
     }
 
     public void UpdateButtonAvailability(bool canAfford)
     {
-        if (_expenseButton != null)
-            _expenseButton.interactable = canAfford;
+        if (expenseButton != null)
+            expenseButton.interactable = canAfford;
     }
 
     protected virtual void UpdateVisibility()
@@ -47,7 +41,7 @@ public class Expense : MonoBehaviour
         if (ShouldBeVisible())
         {
             gameObject.SetActive(true);
-            _expenseText.text = $"{_expenseName}: -${_amount}";
+            expenseText.text = $"{expenseName}: -${amount}";
         }
         else
         {
@@ -55,19 +49,12 @@ public class Expense : MonoBehaviour
         }
     }
 
-    private void OnExpenseSelected()
-    {
-        _dayReport.OnExpenseSelected(this);
-    }
-
-    protected virtual bool ShouldBeVisible()
-    {
-        return true;
-    }
+    private void OnExpenseSelected() => dayReport.OnExpenseSelected(this);
+    protected virtual bool ShouldBeVisible() => true;
 
     private Color HexToColor(string hex)
     {
-        if (ColorUtility.TryParseHtmlString(hex, out Color color))
+        if (ColorUtility.TryParseHtmlString(hex, out var color))
         {
             return color;
         }

@@ -1,13 +1,19 @@
+using System;
 using System.IO;
 using UnityEngine;
 
-public class SettingsManager : MonoBehaviour
+public sealed class SettingsManager : MonoBehaviour
 {
     public static SettingsManager Instance { get; private set; }
-    private string _saveFilePath;
-    private GameSettings _settings;
 
-    public GameSettings Settings => _settings;
+    private const string FileName = "Settings.json";
+    private string _saveFilePath;
+
+    public GameSettings Settings { get; private set; }
+
+    // События
+    public event Action OnSettingsLoaded;
+    public event Action OnSettingsSaved;
 
     private void Awake()
     {
@@ -15,20 +21,26 @@ public class SettingsManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            _saveFilePath = Path.Combine(Application.persistentDataPath, FileName);
+            Load();
         }
         else
         {
             Destroy(gameObject);
         }
-
-        _saveFilePath = Path.Combine(Application.persistentDataPath, "Settings.json");
-        Load();
     }
+
+    private void OnApplicationQuit() => Save();
 
     public void Save()
     {
-        string json = JsonUtility.ToJson(_settings, true);
+        Settings ??= new GameSettings();
+
+        string json = JsonUtility.ToJson(Settings, true);
         File.WriteAllText(_saveFilePath, json);
+
+        OnSettingsSaved?.Invoke();
     }
 
     public void Load()
@@ -36,11 +48,22 @@ public class SettingsManager : MonoBehaviour
         if (File.Exists(_saveFilePath))
         {
             string json = File.ReadAllText(_saveFilePath);
-            _settings = JsonUtility.FromJson<GameSettings>(json);
+            Settings = JsonUtility.FromJson<GameSettings>(json);
+
+            Settings ??= new GameSettings();
         }
         else
         {
-            _settings = new GameSettings();
+            Settings = new GameSettings();
+            Save(); // создаём дефолтные настройки сразу
         }
+
+        OnSettingsLoaded?.Invoke();
+    }
+
+    public void ResetToDefaults()
+    {
+        Settings = new GameSettings();
+        Save();
     }
 }

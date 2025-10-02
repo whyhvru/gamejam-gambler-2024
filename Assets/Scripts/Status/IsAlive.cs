@@ -10,15 +10,8 @@ public class IsAlive : MonoBehaviour
 
     private DataManager _dataManager;
 
-    private void Awake()
-    {
-        _dataManager = DataManager.Instance;
-    }
-
-    private void Start()
-    {
-        CheckAndUpdateDeaths();
-    }
+    private void Awake() => _dataManager = DataManager.Instance;
+    private void Start() => CheckAndUpdateDeaths();
 
     private void CheckAndUpdateDeaths()
     {
@@ -28,37 +21,37 @@ public class IsAlive : MonoBehaviour
 
     private void HandleDeaths()
     {
-        if (_dataManager.SaveData.DaysWithoutFood > 2 || _dataManager.SaveData.DaysWithoutHeat > 2)
+        if (_dataManager.SaveData.daysWithoutFood > 2 || _dataManager.SaveData.daysWithoutHeat > 2)
         {
-            if (_dataManager.SaveData.ChildIsAlive)
+            if (_dataManager.SaveData.childIsAlive)
             {
-                _dataManager.SaveData.ChildIsAlive = false;
+                _dataManager.SaveData.childIsAlive = false;
                 _messageManager.AddDeathMessage("ChildsDeath");
             }
-            else if (_dataManager.SaveData.Child2IsAlive)
+            else if (_dataManager.SaveData.child2IsAlive)
             {
-                _dataManager.SaveData.Child2IsAlive = false;
+                _dataManager.SaveData.child2IsAlive = false;
                 _messageManager.AddDeathMessage("Childs2Death");
             }
-            else if (_dataManager.SaveData.WifeIsAlive)
+            else if (_dataManager.SaveData.wifeIsAlive)
             {
-                _dataManager.SaveData.WifeIsAlive = false;
+                _dataManager.SaveData.wifeIsAlive = false;
                 _messageManager.AddDeathMessage("WifesDeath");
             }
-            else if (_dataManager.SaveData.MotherIsAlive)
+            else if (_dataManager.SaveData.motherIsAlive)
             {
-                _dataManager.SaveData.MotherIsAlive = false;
+                _dataManager.SaveData.motherIsAlive = false;
                 _messageManager.AddDeathMessage("MothersDeath");
             }
 
             ResetSurvivalCounters();
         }
 
-        if (_dataManager.SaveData.DaysWithoutMeds > 1)
+        if (_dataManager.SaveData.daysWithoutMeds > 1)
         {
-            if (_dataManager.SaveData.MotherIsAlive)
+            if (_dataManager.SaveData.motherIsAlive)
             {
-                _dataManager.SaveData.MotherIsAlive = false;
+                _dataManager.SaveData.motherIsAlive = false;
                 _messageManager.AddDeathMessage("MothersDeath");
             }
         }
@@ -68,16 +61,16 @@ public class IsAlive : MonoBehaviour
 
     private void ResetSurvivalCounters()
     {
-        _dataManager.SaveData.DaysWithoutFood = 0;
-        _dataManager.SaveData.DaysWithoutHeat = 0;
+        _dataManager.SaveData.daysWithoutFood = 0;
+        _dataManager.SaveData.daysWithoutHeat = 0;
     }
 
     private void UpdateActiveStatus()
     {
-        UpdateGameObjectStatus(_mother, _dataManager.SaveData.MotherIsAlive);
-        UpdateGameObjectStatus(_wife, _dataManager.SaveData.WifeIsAlive);
-        UpdateGameObjectStatus(_child1, _dataManager.SaveData.ChildIsAlive);
-        UpdateGameObjectStatus(_child2, _dataManager.SaveData.Child2IsAlive);
+        UpdateGameObjectStatus(_mother, _dataManager.SaveData.motherIsAlive);
+        UpdateGameObjectStatus(_wife, _dataManager.SaveData.wifeIsAlive);
+        UpdateGameObjectStatus(_child1, _dataManager.SaveData.childIsAlive);
+        UpdateGameObjectStatus(_child2, _dataManager.SaveData.child2IsAlive);
     }
 
     private void UpdateGameObjectStatus(GameObject obj, bool isAlive)

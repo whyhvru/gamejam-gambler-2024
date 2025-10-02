@@ -1,11 +1,9 @@
-using UnityEngine;
-
 public class Heat : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        _amount = 10f;
+        amount = 10f;
         UpdateVisibility();
     }
 }

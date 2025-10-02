@@ -1,16 +1,11 @@
-using UnityEngine;
-
 public class Microloan : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        _amount = DataManager.Instance.SaveData.Microloan;
+        amount = DataManager.Instance.SaveData.microloan;
         UpdateVisibility();
     }
 
-    protected override bool ShouldBeVisible()
-    {
-        return (DataManager.Instance.SaveData.Microloan > 0f);
-    }
+    protected override bool ShouldBeVisible() => DataManager.Instance.SaveData.microloan > 0f;
 }

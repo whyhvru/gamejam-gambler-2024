@@ -21,7 +21,7 @@ public class MenuUI : MonoBehaviour
     [SerializeField] private Button _exitButton;
     private string _saveFilePath;
 
-    private void Start() 
+    private void Start()
     {
         _saveFilePath = Path.Combine(Application.persistentDataPath, "SaveData.json");
         AddButtonListener(_playButton, Play);
@@ -43,10 +43,7 @@ public class MenuUI : MonoBehaviour
         AddButtonListener(_newGameButton, NewGameWindow);
     }
 
-    private void Continue()
-    {
-        SceneLoader.Instance.LoadGame();
-    }
+    private void Continue() => SceneLoader.Instance.LoadGame();
 
     private void NewGameWindow()
     {
@@ -62,10 +59,7 @@ public class MenuUI : MonoBehaviour
         _newGameWindow.SetActive(false);
     }
 
-    private void Quit()
-    {
-        Application.Quit();
-    }
+    private void Quit() => Application.Quit();
 
     private void NewGame()
     {

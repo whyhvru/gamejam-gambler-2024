@@ -16,7 +16,7 @@ public class MapNav : MonoBehaviour
     [SerializeField] private GameObject _casinoWindow;
     [SerializeField] private Button _rocketButton;
     [SerializeField] private Button _slotButton;
-    
+
     [Header("Friends")]
     [SerializeField] private Button _friend_1;
     [SerializeField] private Button _friend_2;
@@ -91,9 +91,9 @@ public class MapNav : MonoBehaviour
 
     private void OpenBank()
     {
-        if (!_dataManager.SaveData.BanInBank)
+        if (!_dataManager.SaveData.banInBank)
         {
-            if (_dataManager.SaveData.BankDebt == 0f)
+            if (_dataManager.SaveData.bankDebt == 0f)
             {
                 _bankWindow.SetActive(true);
                 _bankConfirmButton.onClick.AddListener(BorrowBank);
@@ -119,7 +119,7 @@ public class MapNav : MonoBehaviour
 
     private void OpenLender()
     {
-        if (_dataManager.SaveData.CarDebt == 0f && _dataManager.SaveData.HasACar)
+        if (_dataManager.SaveData.carDebt == 0f && _dataManager.SaveData.hasACar)
         {
             _lenderWindow.SetActive(true);
             _lenderConfirmButton.onClick.AddListener(BorrowCar);
@@ -140,9 +140,9 @@ public class MapNav : MonoBehaviour
 
     private void BorrowBank()
     {
-        if (_dataManager.SaveData.BankDebt == 0f && !_dataManager.SaveData.BanInBank)
+        if (_dataManager.SaveData.bankDebt == 0f && !_dataManager.SaveData.banInBank)
         {
-            _dataManager.SaveData.BankDebt = 1000f;
+            _dataManager.SaveData.bankDebt = 1000f;
             _dataManager.AddDebt(1000f);
             _bankWindow.SetActive(false);
         }
@@ -150,19 +150,19 @@ public class MapNav : MonoBehaviour
 
     private void BorrowMicroloan()
     {
-        float currentMicroloan = _dataManager.SaveData.Microloan;
+        float currentMicroloan = _dataManager.SaveData.microloan;
         currentMicroloan = currentMicroloan + 500f;
-        _dataManager.SaveData.Microloan = currentMicroloan;
+        _dataManager.SaveData.microloan = currentMicroloan;
         _dataManager.AddDebt(500f);
         _messageManager.AddMicroloanMessage();
     }
 
     private void BorrowCar()
     {
-        if (_dataManager.SaveData.HasACar)
+        if (_dataManager.SaveData.hasACar)
         {
-            _dataManager.SaveData.HasACar = false;
-            _dataManager.SaveData.CarDebt = 10000f;
+            _dataManager.SaveData.hasACar = false;
+            _dataManager.SaveData.carDebt = 10000f;
             _dataManager.AddDebt(10000f);
             _lenderWindow.SetActive(false);
         }
@@ -170,9 +170,9 @@ public class MapNav : MonoBehaviour
 
     private void Borrow1()
     {
-        if (!_dataManager.SaveData.DebtTo1Friend)
+        if (!_dataManager.SaveData.debtTo1Friend)
         {
-            _dataManager.SaveData.DebtTo1Friend = true;
+            _dataManager.SaveData.debtTo1Friend = true;
             _dataManager.AddDebt(100f);
             _messageManager.AddNewFriendDebtMessage(0);
         }
@@ -180,9 +180,9 @@ public class MapNav : MonoBehaviour
 
     private void Borrow2()
     {
-        if (!_dataManager.SaveData.DebtTo2Friend)
+        if (!_dataManager.SaveData.debtTo2Friend)
         {
-            _dataManager.SaveData.DebtTo2Friend = true;
+            _dataManager.SaveData.debtTo2Friend = true;
             _dataManager.AddDebt(100f);
             _messageManager.AddNewFriendDebtMessage(1);
         }
@@ -190,9 +190,9 @@ public class MapNav : MonoBehaviour
 
     private void Borrow3()
     {
-        if (!_dataManager.SaveData.DebtTo3Friend)
+        if (!_dataManager.SaveData.debtTo3Friend)
         {
-            _dataManager.SaveData.DebtTo3Friend = true;
+            _dataManager.SaveData.debtTo3Friend = true;
             _dataManager.AddDebt(100f);
             _messageManager.AddNewFriendDebtMessage(2);
         }
@@ -200,9 +200,9 @@ public class MapNav : MonoBehaviour
 
     private void Borrow4()
     {
-        if (!_dataManager.SaveData.DebtTo4Friend)
+        if (!_dataManager.SaveData.debtTo4Friend)
         {
-            _dataManager.SaveData.DebtTo4Friend = true;
+            _dataManager.SaveData.debtTo4Friend = true;
             _dataManager.AddDebt(100f);
             _messageManager.AddNewFriendDebtMessage(3);
         }
@@ -210,9 +210,9 @@ public class MapNav : MonoBehaviour
 
     private void Borrow5()
     {
-        if (!_dataManager.SaveData.DebtTo5Friend)
+        if (!_dataManager.SaveData.debtTo5Friend)
         {
-            _dataManager.SaveData.DebtTo5Friend = true;
+            _dataManager.SaveData.debtTo5Friend = true;
             _dataManager.AddDebt(100f);
             _messageManager.AddNewFriendDebtMessage(4);
         }

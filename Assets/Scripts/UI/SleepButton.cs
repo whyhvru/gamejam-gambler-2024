@@ -5,10 +5,7 @@ public class SleepButton : MonoBehaviour
 {
     [SerializeField] private Button _sleepButton;
 
-    private void Start() 
-    {
-        _sleepButton.onClick.AddListener(Sleep);
-    }
+    private void Start() => _sleepButton.onClick.AddListener(Sleep);
 
     private void Sleep()
     {
@@ -18,7 +15,7 @@ public class SleepButton : MonoBehaviour
 
     private void ClearDailyStats()
     {
-        DataManager.Instance.SaveData.DailyIncome = 0;
-        DataManager.Instance.SaveData.DailyLesion = 0;
+        DataManager.Instance.SaveData.dailyIncome = 0;
+        DataManager.Instance.SaveData.dailyLesion = 0;
     }
 }

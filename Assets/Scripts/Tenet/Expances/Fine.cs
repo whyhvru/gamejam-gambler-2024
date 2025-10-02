@@ -1,23 +1,19 @@
-using UnityEngine;
-
 public class Fine : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        
-        _amount = DataManager.Instance.SaveData.Balance / 2f;
+
+        amount = DataManager.Instance.SaveData.balance / 2f;
 
         UpdateVisibility();
 
-        if (DataManager.Instance.SaveData.BankDebt > 0f && DataManager.Instance.SaveData.OverdueLoanBank)
+        if (DataManager.Instance.SaveData.bankDebt > 0f && DataManager.Instance.SaveData.overdueLoanBank)
         {
-            _isSelected = true;
+            isSelected = true;
         }
     }
 
-    protected override bool ShouldBeVisible()
-    {
-        return (DataManager.Instance.SaveData.BankDebt > 0f && DataManager.Instance.SaveData.OverdueLoanBank);
-    }
+    protected override bool ShouldBeVisible() =>
+        DataManager.Instance.SaveData.bankDebt > 0f && DataManager.Instance.SaveData.overdueLoanBank;
 }

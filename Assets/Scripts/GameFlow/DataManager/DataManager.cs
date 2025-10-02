@@ -1,15 +1,17 @@
 using UnityEngine;
+using System;
 using System.IO;
-using System.Collections.Generic;
 
-public class DataManager : MonoBehaviour
+public sealed class DataManager : MonoBehaviour
 {
     public static DataManager Instance { get; private set; }
+
     private string _saveFilePath;
 
-    private SaveData _saveData;
+    public SaveData SaveData { get; private set; }
 
-    public SaveData SaveData => _saveData;
+    public event Action OnDataChanged;
+    public event Action OnDateChanged;
 
     private void Awake()
     {
@@ -17,6 +19,7 @@ public class DataManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
             _saveFilePath = Path.Combine(Application.persistentDataPath, "SaveData.json");
             Load();
         }
@@ -26,9 +29,10 @@ public class DataManager : MonoBehaviour
         }
     }
 
+    #region Save/Load
     public void Save()
     {
-        string json = JsonUtility.ToJson(_saveData, true);
+        string json = JsonUtility.ToJson(SaveData, true);
         File.WriteAllText(_saveFilePath, json);
     }
 
@@ -37,23 +41,28 @@ public class DataManager : MonoBehaviour
         if (File.Exists(_saveFilePath))
         {
             string json = File.ReadAllText(_saveFilePath);
-            _saveData = JsonUtility.FromJson<SaveData>(json);
+            SaveData = JsonUtility.FromJson<SaveData>(json);
         }
         else
         {
-            _saveData = new SaveData();
+            SaveData = new SaveData();
             Save();
         }
-    }
 
+        NotifyDataChanged();
+    }
+    #endregion
+
+    #region Date
     public void NewDay()
     {
-        int CurrentDay = _saveData.Day;
-        CurrentDay++;
-        _saveData.Day = CurrentDay;
+        SaveData.day++;
         Save();
+        NotifyDateChanged();
     }
+    #endregion
 
+    #region Balance/Debts
     public void AddDebt(float value)
     {
         ChangeBalance(value);
@@ -62,57 +71,65 @@ public class DataManager : MonoBehaviour
 
     private void UpdateDebts()
     {
-        _saveData.Debts = _saveData.DebtFriends + _saveData.BankDebt + _saveData.Microloan + _saveData.CarDebt;
+        SaveData.debts = SaveData.debtFriends + SaveData.bankDebt + SaveData.microloan + SaveData.carDebt;
+        Save();
+        NotifyDataChanged();
     }
 
     public void ChangeBalance(float value)
     {
-        _saveData.Balance += value;
-        
-        (value > 0 ? ref _saveData.DailyIncome : ref _saveData.DailyLesion) += value;
+        SaveData.balance += value;
+
+        if (value > 0)
+            SaveData.dailyIncome += value;
+        else
+            SaveData.dailyLesion += value;
 
         Save();
+        NotifyDataChanged();
     }
+    #endregion
 
+    #region Expenses
     public void ResetDebt(string expenseName)
     {
         switch (expenseName)
         {
             case "Питание":
-                _saveData.DaysWithoutFood = 0;
+                SaveData.daysWithoutFood = 0;
                 break;
 
             case "Отопление":
-                _saveData.DaysWithoutHeat = 0;
+                SaveData.daysWithoutHeat = 0;
                 break;
 
             case "Лекарство_матери":
-                _saveData.DaysWithoutMeds = 0;
+                SaveData.daysWithoutMeds = 0;
                 break;
 
             case "Долг_друзьям":
-                _saveData.DaysUnpaidDebtFriends = 0;
-                _saveData.DebtFriends = 0f;
+                SaveData.daysUnpaidDebtFriends = 0;
+                SaveData.debtFriends = 0f;
                 break;
 
             case "Задолженность_в_банке":
-                _saveData.DaysUnpaidBank = 0;
-                _saveData.BankDebt = 0f;
+                SaveData.daysUnpaidBank = 0;
+                SaveData.bankDebt = 0f;
                 break;
 
             case "Микрозайм":
-                _saveData.DaysUnpaidMicroloan = 0;
-                _saveData.Microloan = 0f;
+                SaveData.daysUnpaidMicroloan = 0;
+                SaveData.microloan = 0f;
                 break;
 
             case "Выкуп_машины":
-                _saveData.DaysUnpaidCarDebt = 0;
-                _saveData.CarDebt = 0f;
+                SaveData.daysUnpaidCarDebt = 0;
+                SaveData.carDebt = 0f;
                 break;
 
             default:
                 Debug.LogWarning($"Unknown expense name: {expenseName}");
-                break;
+                return;
         }
 
         UpdateDebts();
@@ -123,48 +140,52 @@ public class DataManager : MonoBehaviour
         switch (expenseName)
         {
             case "Питание":
-                _saveData.DaysWithoutFood = _saveData.DaysWithoutFood + 1;
+                SaveData.daysWithoutFood++;
                 break;
 
             case "Отопление":
-                _saveData.DaysWithoutHeat = _saveData.DaysWithoutHeat + 1;
+                SaveData.daysWithoutHeat++;
                 break;
 
             case "Лекарства_матери":
-                _saveData.DaysWithoutMeds = _saveData.DaysWithoutMeds + 1;
+                SaveData.daysWithoutMeds++;
                 break;
 
             case "Долг_друзьям":
-                _saveData.DaysUnpaidDebtFriends = _saveData.DaysUnpaidDebtFriends + 1;
+                SaveData.daysUnpaidDebtFriends++;
                 break;
 
             case "Задолженность_в_банке":
-                _saveData.DaysUnpaidBank = _saveData.DaysUnpaidBank + 1;
+                SaveData.daysUnpaidBank++;
                 break;
 
             case "Микрозайм":
-                _saveData.DaysUnpaidMicroloan = _saveData.DaysUnpaidMicroloan + 1;
-                if (_saveData.DaysUnpaidMicroloan > 2f)
-                {
-                    _saveData.Microloan = _saveData.Microloan * 1.25f;
-                }
+                SaveData.daysUnpaidMicroloan++;
+                if (SaveData.daysUnpaidMicroloan > 2)
+                    SaveData.microloan *= 1.25f;
                 break;
 
             case "Выкуп_машины":
-                _saveData.DaysUnpaidCarDebt = _saveData.DaysUnpaidCarDebt + 1;
-                if (_saveData.DaysUnpaidCarDebt > 4)
+                SaveData.daysUnpaidCarDebt++;
+                if (SaveData.daysUnpaidCarDebt > 4)
                 {
-                    _saveData.CarDebt = 0f;
-                    _saveData.HasACar = false;
-                    _saveData.CarIsReturnable = false;
+                    SaveData.carDebt = 0f;
+                    SaveData.hasACar = false;
+                    SaveData.carIsReturnable = false;
                 }
                 break;
 
             default:
                 Debug.LogWarning($"Unknown expense name: {expenseName}");
-                break;
+                return;
         }
 
         UpdateDebts();
     }
+    #endregion
+
+    #region Private Helpers
+    private void NotifyDataChanged() => OnDataChanged?.Invoke();
+    private void NotifyDateChanged() => OnDateChanged?.Invoke();
+    #endregion
 }

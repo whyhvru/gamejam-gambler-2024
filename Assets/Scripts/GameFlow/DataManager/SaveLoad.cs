@@ -1,45 +1,43 @@
-using System.Collections.Generic;
-
 [System.Serializable]
 public class SaveData
 {
-    public int Day = 1;
-    public int Month = 11;
+    public int day = 1;
+    public int month = 11;
 
-    public float Balance = 100f;
-    public float DailyIncome;
-    public float DailyLesion;
+    public float balance = 100f;
+    public float dailyIncome;
+    public float dailyLesion;
 
-    public float Debts = 0f;
-    public float DebtFriends = 0f;
-    public int NumberOfLoansFriends = 0; 
-    public float BankDebt = 0f;
-    public float Microloan = 0f;
-    public float CarDebt = 0f;
+    public float debts = 0f;
+    public float debtFriends = 0f;
+    public int numberOfLoansFriends = 0;
+    public float bankDebt = 0f;
+    public float microloan = 0f;
+    public float carDebt = 0f;
 
-    public bool DebtTo1Friend = false;
-    public bool DebtTo2Friend = false;
-    public bool DebtTo3Friend = false;
-    public bool DebtTo4Friend = false;
-    public bool DebtTo5Friend = false;
+    public bool debtTo1Friend = false;
+    public bool debtTo2Friend = false;
+    public bool debtTo3Friend = false;
+    public bool debtTo4Friend = false;
+    public bool debtTo5Friend = false;
 
-    public int DaysUnpaidDebtFriends = 0;
+    public int daysUnpaidDebtFriends = 0;
 
-    public int DaysUnpaidBank = 0;
-    public bool OverdueLoanBank = false;
-    public bool BanInBank = false;
-    public int DaysUnpaidMicroloan = 0;
-    public int DaysUnpaidCarDebt = 0;
-    public int DaysWithoutFood = 0;
-    public int DaysWithoutHeat = 0;
-    public int DaysWithoutMeds = 0;
+    public int daysUnpaidBank = 0;
+    public bool overdueLoanBank = false;
+    public bool banInBank = false;
+    public int daysUnpaidMicroloan = 0;
+    public int daysUnpaidCarDebt = 0;
+    public int daysWithoutFood = 0;
+    public int daysWithoutHeat = 0;
+    public int daysWithoutMeds = 0;
 
-    public bool MotherIsAlive = true;
-    public bool WifeIsAlive = true;
-    public bool ChildIsAlive = true;
-    public bool Child2IsAlive = true;
+    public bool motherIsAlive = true;
+    public bool wifeIsAlive = true;
+    public bool childIsAlive = true;
+    public bool child2IsAlive = true;
 
-    public bool HasACar = true;
-    public bool HasAApart = true;
-    public bool CarIsReturnable = true;
+    public bool hasACar = true;
+    public bool hasAApart = true;
+    public bool carIsReturnable = true;
 }

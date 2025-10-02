@@ -1,46 +1,49 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using UnityEngine.SceneManagement;
 
-public class GameTime : MonoBehaviour
+public sealed class GameTime : MonoBehaviour
 {
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI _timeText;
-    
+
+    [Header("Time Settings")]
+    [SerializeField] private int _startHour = 12;
+    [SerializeField] private int _startMinute = 0;
+    [SerializeField] private int _endOfDayHour = 3;
+    [SerializeField] private float _updateInterval = 0.1f;
+    [SerializeField] private int _minutesPerTick = 15;
+
+    [Header("Game Over Settings")]
+    [SerializeField] private float _maxDebt = 100000f;
+
     private DataManager _dataManager;
-    private int _hours = 12;
-    private int _minutes = 0;
+    private int _hours;
+    private int _minutes;
+    private bool _isDayActive;
 
-    // Реальное игровое время по отношению к игровой единице
-    private float _updateInterval = 3f;
-
-    private bool _isDayActive = true;
-
-    private void Start() 
+    private void Start()
     {
         _dataManager = DataManager.Instance;
-        StartCoroutine(UpdateGameTime());    
+
+        _hours = _startHour;
+        _minutes = _startMinute;
+        _isDayActive = true;
+
+        StartCoroutine(TimeRoutine());
+        UpdateTimeDisplay();
     }
 
-    private IEnumerator UpdateGameTime()
+    private IEnumerator TimeRoutine()
     {
         while (_isDayActive)
         {
-            UpdateTimeDisplay();
-
             yield return new WaitForSeconds(_updateInterval);
-
-            // Добавление игровой единицы
-            AddTime(15);
+            AdvanceTime(_minutesPerTick);
         }
     }
 
-    private void UpdateTimeDisplay()
-    {
-        _timeText.text = $"{_hours:D2}:{_minutes:D2}";
-    }
-
-    private void AddTime(int minutesToAdd)
+    private void AdvanceTime(int minutesToAdd)
     {
         _minutes += minutesToAdd;
 
@@ -49,51 +52,55 @@ public class GameTime : MonoBehaviour
             _minutes -= 60;
             _hours++;
         }
+
         if (_hours >= 24)
         {
             _hours = 0;
-            DataManager.Instance.NewDay();
+            _dataManager.NewDay();
         }
-        else if (_hours == 3)
+
+        if (_hours == _endOfDayHour)
         {
             _isDayActive = false;
-            EndOfDay();
+            HandleEndOfDay();
+            return;
         }
-        else
-        {
-            UpdateTimeDisplay();
-        }
+
+        UpdateTimeDisplay();
     }
 
     public void SkipTime(int minutesToSkip)
     {
         if (_isDayActive)
-        {
-            AddTime(minutesToSkip);
-        }
+            AdvanceTime(minutesToSkip);
     }
 
-    private void EndOfDay()
+    private void UpdateTimeDisplay()
     {
-        if (!IsGameOver())
-        {
-            _dataManager.Save();
-            SceneLoader.Instance.LoadTenet();
-        }
-        else
-        {
+        if (_timeText != null)
+            _timeText.text = $"{_hours:D2}:{_minutes:D2}";
+    }
+
+    private void HandleEndOfDay()
+    {
+        _dataManager.Save();
+
+        if (IsGameOver())
             SceneLoader.Instance.LoadEnd();
-        }
+        else
+            SceneLoader.Instance.LoadTenet();
     }
 
     private bool IsGameOver()
     {
-        bool aLotOfDebt = (_dataManager.SaveData.Debts >= 100000f);
-        bool everyoneIsDead = (!_dataManager.SaveData.MotherIsAlive && !_dataManager.SaveData.WifeIsAlive && 
-                                !_dataManager.SaveData.ChildIsAlive && !_dataManager.SaveData.Child2IsAlive);
-        
-        bool isGameOver = (aLotOfDebt && everyoneIsDead);
-        
-        return isGameOver;
+        var save = _dataManager.SaveData;
+
+        bool aLotOfDebt = save.debts >= _maxDebt;
+        bool everyoneDead = !save.motherIsAlive &&
+                            !save.wifeIsAlive &&
+                            !save.childIsAlive &&
+                            !save.child2IsAlive;
+
+        return aLotOfDebt && everyoneDead;
     }
 }

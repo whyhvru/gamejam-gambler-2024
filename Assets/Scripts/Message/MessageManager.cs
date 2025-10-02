@@ -25,8 +25,8 @@ public class MessageManager : MonoBehaviour
 
     private void AddStartOfDayMessage()
     {
-        int totalDays = _dataManager.SaveData.Day + (_dataManager.SaveData.Month == 12 ? 30 : 0);
-        
+        int totalDays = _dataManager.SaveData.day + (_dataManager.SaveData.month == 12 ? 30 : 0);
+
         if (totalDays == 1)
         {
             AddMessage("Мысли", "Не могу забыть вчерашний день... так просто взяли и уволили.");
@@ -134,53 +134,53 @@ public class MessageManager : MonoBehaviour
 
     private void CheckMessages()
     {
-        if (_dataManager.SaveData.MotherIsAlive && _dataManager.SaveData.DaysWithoutMeds == 1)
+        if (_dataManager.SaveData.motherIsAlive && _dataManager.SaveData.daysWithoutMeds == 1)
         {
-            ScheduleMessage("MotherNeedsMedicine", "Мать", 12f); 
+            ScheduleMessage("MotherNeedsMedicine", "Мать", 12f);
         }
 
-        if (_dataManager.SaveData.WifeIsAlive && 
-            _dataManager.SaveData.ChildIsAlive &&
-            _dataManager.SaveData.Child2IsAlive &&
-            (_dataManager.SaveData.DaysWithoutFood == 1 || _dataManager.SaveData.DaysWithoutFood == 2))
+        if (_dataManager.SaveData.wifeIsAlive &&
+            _dataManager.SaveData.childIsAlive &&
+            _dataManager.SaveData.child2IsAlive &&
+            (_dataManager.SaveData.daysWithoutFood == 1 || _dataManager.SaveData.daysWithoutFood == 2))
         {
-            ScheduleMessage("WifeNeedsFood", "Жена", Random.Range(24, 108)); 
+            ScheduleMessage("WifeNeedsFood", "Жена", Random.Range(24, 108));
         }
 
-        if (_dataManager.SaveData.WifeIsAlive && 
-            _dataManager.SaveData.ChildIsAlive &&
-            _dataManager.SaveData.Child2IsAlive &&
-            _dataManager.SaveData.DaysWithoutHeat == 1 && _dataManager.SaveData.DaysWithoutHeat == 2)
+        if (_dataManager.SaveData.wifeIsAlive &&
+            _dataManager.SaveData.childIsAlive &&
+            _dataManager.SaveData.child2IsAlive &&
+            _dataManager.SaveData.daysWithoutHeat == 1 && _dataManager.SaveData.daysWithoutHeat == 2)
         {
-            ScheduleMessage("WifeNeedsHeat", "Жена", Random.Range(24, 108)); 
+            ScheduleMessage("WifeNeedsHeat", "Жена", Random.Range(24, 108));
         }
 
-        if (_dataManager.SaveData.DaysUnpaidDebtFriends > 2)
+        if (_dataManager.SaveData.daysUnpaidDebtFriends > 2)
         {
-            ScheduleMessage("DebtFriends", "Друг", Random.Range(24, 108)); 
+            ScheduleMessage("DebtFriends", "Друг", Random.Range(24, 108));
         }
 
-        if (_dataManager.SaveData.DaysUnpaidBank == 4)
+        if (_dataManager.SaveData.daysUnpaidBank == 4)
         {
-            ScheduleMessage("BankDue", "Банк", 36f); 
+            ScheduleMessage("BankDue", "Банк", 36f);
         }
 
-        if (_dataManager.SaveData.DaysUnpaidBank > 4)
+        if (_dataManager.SaveData.daysUnpaidBank > 4)
         {
-            ScheduleMessage("BankLate", "Банк", 36f); 
+            ScheduleMessage("BankLate", "Банк", 36f);
         }
 
-        if (_dataManager.SaveData.DaysUnpaidBank > 4)
+        if (_dataManager.SaveData.daysUnpaidBank > 4)
         {
             ScheduleMessage("BankBan", "Банк", 48f);
         }
 
-        if (_dataManager.SaveData.DaysUnpaidMicroloan > 2)
+        if (_dataManager.SaveData.daysUnpaidMicroloan > 2)
         {
-            ScheduleMessage("MicroloanPenalty", "Микрозайм", Random.Range(108, 144)); 
+            ScheduleMessage("MicroloanPenalty", "Микрозайм", Random.Range(108, 144));
         }
 
-        if (_dataManager.SaveData.DaysUnpaidCarDebt > 4)
+        if (_dataManager.SaveData.daysUnpaidCarDebt > 4)
         {
             ScheduleMessage("CarLate", "Кредитор", Random.Range(108, 144));
         }
@@ -212,16 +212,12 @@ public class MessageManager : MonoBehaviour
         UpdateMessageText();
     }
 
-    private void UpdateMessageText()
-    {
-        _messageTextArea.text = string.Join("\n\n", _currentMessages);
-    }
+    private void UpdateMessageText() => _messageTextArea.text = string.Join("\n\n", _currentMessages);
 
-    private void InitializeMessageDatabase()
-    {
-        _messageDatabase = new Dictionary<string, List<string>>();
-
-        _messageDatabase["StartOfDay"] = new List<string>
+    private void InitializeMessageDatabase() =>
+        _messageDatabase = new Dictionary<string, List<string>>
+        {
+            ["StartOfDay"] = new List<string>
         {
             "Не особо выспался, но это не помешает мне сорвать куш.",
             "Новый день, пора начать играть аккуратнее.",
@@ -232,9 +228,9 @@ public class MessageManager : MonoBehaviour
             "Надо скорее вставать и идти побеждать.",
             "Черт, сегодня мой счастливый день, попытаюсь.",
             "Руки так и чешутся... Может сегодня сорву куш?"
-        };
+        },
 
-        _messageDatabase["BigWin"] = new List<string>
+            ["BigWin"] = new List<string>
         {
             "Черт возьми, да! Это мое время!",
             "Да ну нахер, я выиграл! Это просто невероятно!",
@@ -246,9 +242,9 @@ public class MessageManager : MonoBehaviour
             "Твою мать, наконец-то! Вот оно!",
             "Дааааааааа! Как же я силен!",
             "Я был прав! Черт, наконец-то результат!"
-        };
+        },
 
-        _messageDatabase["BigLoss"] = new List<string>
+            ["BigLoss"] = new List<string>
         {
             "Черт, нет, как так?! Где быть... взять в долг?",
             "Как я мог так ошибиться, твою мать!",
@@ -260,115 +256,115 @@ public class MessageManager : MonoBehaviour
             "Черт, да как так-то, а?! Я был так близок...",
             "Как я мог так прогореть? Может... взять у кого в долг?",
             "Ааа, ну нет! Ожидаемо было. Что же делать?"
-        };
+        },
 
-        _messageDatabase["MotherNeedsMedicine"] = new List<string>
+            ["MotherNeedsMedicine"] = new List<string>
         {
             "Сынок, ты вчера забыл про моё лекарство? Прошу, купи сегодня.",
             "Мне становится хуже. Пожалуйста, найди время и сходи в аптеку!",
             "Пожалуйста, купи лекарства, сынок. Я больше не могу терпеть боль!",
             "Сынок... Я понимаю, что у тебя много дел, но прошу, купи лекарства сегодня.",
             "Мне очень больно, сынок. Прошу тебя, не забудь купить лекарства."
-        };
+        },
 
-        _messageDatabase["WifeNeedsFood"] = new List<string>
+            ["WifeNeedsFood"] = new List<string>
         {
             "О боже, ты вообще думаешь о детях? Сегодня принеси еды. Обязательно!",
             "Дети уже плачут от голода. Что с тобой стряслось??",
             "Мы не выдержим больше, срочно купи поесть... хотя бы детям.",
             "Невыносимо! Ты о детях всегда в последнюю очередь думаешь? Принеси еды!"
-        };
+        },
 
-        _messageDatabase["WifeNeedsHeat"] = new List<string>
+            ["WifeNeedsHeat"] = new List<string>
         {
             "Не знаю, что с тобой в последнее время, но оплати ты уже за отопление!",
             "Дети заболели, дома невыносимо холодно! Оплати за отопление!",
             "Мы не выдержим больше, холодрыга пробирает до костей. Ты тут?",
             "Невыносимо холодно! Срочно оплати за отопление!"
-        };
+        },
 
-        _messageDatabase["NewFriendDebt"] = new List<string>
+            ["NewFriendDebt"] = new List<string>
         {
             "Вы взяли в долг у лучшего друга. Постарайтесь вернуть за пару дней.",
             "Ваш друг нашел деньги, чтобы одолжить их Вам.",
             "Ваш давний друг проявил к Вам жалость, одолжив $100.",
             "Подруге было неловко Вам отказывать и вы получили $100.",
             "Ваш знакомый был удивлен, но все же согласился помочь."
-        };
+        },
 
-        _messageDatabase["DebtFriends"] = new List<string>
+            ["DebtFriends"] = new List<string>
         {
             "Привет, не мог бы ты вернуть те деньги? Напиши, как прочитаешь",
             "Привет, дружище. Когда вернешь долг? Мне сейчас тоже нужны деньги.",
             "Привет, слушай... Ты говорил о пару дней, а уже прошло сколько. Напиши мне.",
             "Привет, помнишь, ты деньги занимал? Когда их вернешь примерно?",
             "Привет, нашел работу? В общем, мне сейчас деньги нужны, верни поскорее."
-        };
+        },
 
-        _messageDatabase["BankPayDebt"] = new List<string>
+            ["BankPayDebt"] = new List<string>
         {
             $"Погасите текущую задолженность, чтобы оформить новый кредит."
-        };
+        },
 
-        _messageDatabase["BankBan"] = new List<string>
+            ["BankBan"] = new List<string>
         {
             $"К сожалению, Вы внесены в черный список кредиторов. Оформить кредит невозможно."
-        };
+        },
 
-        _messageDatabase["BankDue"] = new List<string>
+            ["BankDue"] = new List<string>
         {
             $"Завтра наступает срок платежа по вашему кредиту.\nВнесите платеж вовремя, чтобы избежать начисления штрафов.\nС уважением, ИЦ Банк."
-        };
+        },
 
-        _messageDatabase["BankLate"] = new List<string>
+            ["BankLate"] = new List<string>
         {
             $"Банк: Уважаемый клиент,\nВаш платеж по кредиту просрочен. Погасите задолженность, чтобы избежать дополнительных штрафов.\nИЦ Банк."
-        };
+        },
 
-        _messageDatabase["BankBan"] = new List<string>
+            ["BankBan"] = new List<string>
         {
             $"Уважаемый клиент,\nВы внесены в черный список кредиторов.\nИЦ Банк."
-        };
+        },
 
-        _messageDatabase["MicroloanMessage"] = new List<string>
+            ["MicroloanMessage"] = new List<string>
         {
             $"Вы взяли микрозайм на $500. У вас есть 2 дня, чтобы вернуть их."
-        };
+        },
 
-        _messageDatabase["MicroloanPenalty"] = new List<string>
+            ["MicroloanPenalty"] = new List<string>
         {
             $"Уважаемый клиент,\nСрок погашения вашего микрозайма истек. Начисляется пеня в размере 25% за каждый день просрочки.\nИО Микрозайм."
-        };
+        },
 
-        _messageDatabase["Failure"] = new List<string>
+            ["Failure"] = new List<string>
         {
             $"К сожалению, Вам нечего закладывать.",
             $"К сожалению, Вам нечего предложить кредитору."
-        };
+        },
 
-        _messageDatabase["CarLate"] = new List<string>
+            ["CarLate"] = new List<string>
         {
             $"Уважаемый клиент,\nСрок погашения долга по вашему займу истек.\nМы имеем право изъять заложенное имущество - ваш автомобиль."
-        };
+        },
 
-        _messageDatabase["MothersDeath"] = new List<string>
+            ["MothersDeath"] = new List<string>
         {
             $"Плохие новости, Ваша мать ушла из жизни. Это большая утрата для Вас. Примите наши соболезнования."
-        };
+        },
 
-        _messageDatabase["WifesDeath"] = new List<string>
+            ["WifesDeath"] = new List<string>
         {
             $"Ваша жена скончалась. Пожалуйста, найдите силы пережить эту утрату."
-        };
+        },
 
-        _messageDatabase["ChildsDeath"] = new List<string>
+            ["ChildsDeath"] = new List<string>
         {
             $"Несвоевременные решения или трудные обстоятельства привели к трагедии. Ваш ребенок больше не с вами."
-        };
+        },
 
-        _messageDatabase["Childs2Death"] = new List<string>
+            ["Childs2Death"] = new List<string>
         {
             $"Вы потеряли второго ребенка. Мы понимаем, как тяжело вам справляться с этой болью. Берегите себя."
+        }
         };
-    }
 }

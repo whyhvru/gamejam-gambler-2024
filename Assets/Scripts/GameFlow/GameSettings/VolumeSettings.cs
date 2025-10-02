@@ -1,31 +1,41 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(Slider))]
 public class VolumeSettings : MonoBehaviour
 {
     [SerializeField] private Slider _volumeSlider;
+
     private AudioSource _audioSource;
     private SettingsManager _settingsManager;
 
-    private void Start() 
+    private void Awake()
     {
         _settingsManager = SettingsManager.Instance;
         _audioSource = MusicManager.Instance.GetComponent<AudioSource>();
 
-        if (_volumeSlider != null)
-        {
-            _volumeSlider.value = _audioSource.volume;
-            _volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
-        }
+        if (_volumeSlider == null)
+            _volumeSlider = GetComponent<Slider>();
     }
 
-    private void OnVolumeChanged(float value)
+    private void Start()
     {
-        if (_audioSource != null)
-        {
-            _audioSource.volume = value;
-            _settingsManager.Settings.Volume = value;
-            _settingsManager.Save();
-        }
+        float savedVolume = _settingsManager.Settings.volume;
+
+        ApplyVolume(savedVolume);
+        _volumeSlider.value = savedVolume;
+
+        _volumeSlider.onValueChanged.AddListener(ApplyVolume);
+    }
+
+    private void OnDestroy() => _volumeSlider.onValueChanged.RemoveListener(ApplyVolume);
+
+    private void ApplyVolume(float value)
+    {
+        if (_audioSource == null) return;
+
+        _audioSource.volume = value;
+        _settingsManager.Settings.volume = value;
+        _settingsManager.Save();
     }
 }

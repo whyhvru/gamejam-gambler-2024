@@ -1,16 +1,11 @@
-using UnityEngine;
-
 public class CarDebt : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        _amount = DataManager.Instance.SaveData.CarDebt;
+        amount = DataManager.Instance.SaveData.carDebt;
         UpdateVisibility();
     }
 
-    protected override bool ShouldBeVisible()
-    {
-        return (DataManager.Instance.SaveData.CarDebt > 0f);
-    }
+    protected override bool ShouldBeVisible() => DataManager.Instance.SaveData.carDebt > 0f;
 }

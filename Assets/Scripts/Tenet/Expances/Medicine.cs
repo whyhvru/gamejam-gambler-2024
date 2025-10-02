@@ -1,16 +1,11 @@
-using UnityEngine;
-
 public class Medicine : Expense
 {
-    protected override void Start() 
+    protected override void Start()
     {
         base.Start();
-        _amount = 125f;
+        amount = 125f;
         UpdateVisibility();
     }
 
-    protected override bool ShouldBeVisible()
-    {
-        return (DataManager.Instance.SaveData.MotherIsAlive);
-    }
+    protected override bool ShouldBeVisible() => DataManager.Instance.SaveData.motherIsAlive;
 }
