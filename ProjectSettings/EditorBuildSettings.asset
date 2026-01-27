@@ -6,16 +6,16 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Menu.unity
+    path: Assets/_Project/Scenes/Menu.unity
     guid: fe690bd2f510c7549a79cb4c19568a68
   - enabled: 1
-    path: Assets/Scenes/Game.unity
+    path: Assets/_Project/Scenes/Game.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Tenet.unity
+    path: Assets/_Project/Scenes/Tenet.unity
     guid: 163cc0cd7aa1f5645b009ed413b76f2b
   - enabled: 1
-    path: Assets/Scenes/End.unity
+    path: Assets/_Project/Scenes/End.unity
     guid: 9631a03a24e40b14fa024043754174e0
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
