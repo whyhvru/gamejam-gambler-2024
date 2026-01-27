@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Module.Presentation.Visual
+namespace Module.Presentation.UI
 {
     public sealed class SlotReelView : MonoBehaviour
     {

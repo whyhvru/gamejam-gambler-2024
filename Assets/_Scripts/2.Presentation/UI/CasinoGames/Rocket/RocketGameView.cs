@@ -1,13 +1,12 @@
 using Module.Core;
 using Module.Gameplay;
-using Module.Presentation.Visual;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Module.Presentation.Games.Rocket
+namespace Module.Presentation.UI
 {
     public sealed class RocketGameView : MonoBehaviour
     {
@@ -24,7 +23,6 @@ namespace Module.Presentation.Games.Rocket
         [SerializeField] private Button _minBetButton;
 
         [Header("References")]
-        [SerializeField] private MessageManager _messageManager;
         [SerializeField] private Animator _rocketAnimator;
         [SerializeField] private RocketBackgroundView _backgroundView;
         [SerializeField] private AudioSource _audioSource;
@@ -32,6 +30,7 @@ namespace Module.Presentation.Games.Rocket
         [SerializeField] private AudioClip _youWonSound;
 
         private IDataService _dataService;
+        private MessageService _messageService;
 
         private RocketGameService _game;
 
@@ -44,10 +43,11 @@ namespace Module.Presentation.Games.Rocket
         private float CurrentBalance => _dataService.SaveData.balance;
 
         [Inject]
-        public void Construct(IDataService dataService, RocketGameService game)
+        public void Construct(IDataService dataService, RocketGameService game, MessageService message)
         {
             _dataService = dataService;
             _game = game;
+            _messageService = message;
         }
 
         private void Awake()
@@ -224,7 +224,7 @@ namespace Module.Presentation.Games.Rocket
             PlaySound(_youWonSound, 1f);
 
             if (winnings > _game.State.CurrentBet * RocketGameConfig.bigWinMultiplier)
-                _messageManager.AddBigWinMessage();
+                _messageService.AddBigWinMessage();
 
             _startButton.interactable = false;
         }
@@ -236,7 +236,7 @@ namespace Module.Presentation.Games.Rocket
             PlaySound(_explosionSound, 0.7f);
 
             if (!_game.State.HasClaimed && CurrentBalance < MinBalanceForLossMessage)
-                _messageManager.AddBigLossMessage();
+                _messageService.AddBigLossMessage();
 
             if (_multiplierText != null)
             {

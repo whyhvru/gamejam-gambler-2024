@@ -6,6 +6,14 @@ namespace Module.Gameplay
     {
         public override void InstallBindings()
         {
+            Container.Bind<SurvivalService>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<MessageService>()
+                .AsSingle()
+                .NonLazy();
+
             Container.BindInterfacesAndSelfTo<RocketGameService>()
                 .AsSingle()
                 .NonLazy();

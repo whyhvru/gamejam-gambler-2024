@@ -1,4 +1,5 @@
 using Module.Core;
+using Module.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -38,16 +39,17 @@ public class MapNav : MonoBehaviour
     [SerializeField] private Button _lenderConfirmButton;
     [SerializeField] private Button _lenderCancelButton;
     [SerializeField] private Button _microloan;
-    [SerializeField] private MessageManager _messageManager;
 
     private IDataService _dataService;
     private IAudioService _audioService;
+    private MessageService _messageService;
 
     [Inject]
-    public void Construct(IDataService data, IAudioService audio)
+    public void Construct(IDataService data, IAudioService audio, MessageService message)
     {
         _dataService = data;
         _audioService = audio;
+        _messageService = message;
     }
 
     private void Start()
@@ -110,12 +112,12 @@ public class MapNav : MonoBehaviour
             }
             else
             {
-                _messageManager.AddBankPayDebtMessage();
+                _messageService.AddBankPayDebtMessage();
             }
         }
         else
         {
-            _messageManager.AddBankBanMessage();
+            _messageService.AddBankBanMessage();
         }
     }
 
@@ -136,7 +138,7 @@ public class MapNav : MonoBehaviour
         }
         else
         {
-            _messageManager.AddFailureMessage();
+            _messageService.AddFailureMessage();
         }
     }
 
@@ -163,7 +165,7 @@ public class MapNav : MonoBehaviour
         currentMicroloan += 500f;
         _dataService.SaveData.microloan = currentMicroloan;
         _dataService.AddDebt(500f);
-        _messageManager.AddMicroloanMessage();
+        _messageService.AddMicroloanMessage();
     }
 
     private void BorrowCar()
@@ -183,7 +185,7 @@ public class MapNav : MonoBehaviour
         {
             _dataService.SaveData.debtTo1Friend = true;
             _dataService.AddDebt(100f);
-            _messageManager.AddNewFriendDebtMessage(0);
+            _messageService.AddNewFriendDebtMessage(0);
         }
     }
 
@@ -193,7 +195,7 @@ public class MapNav : MonoBehaviour
         {
             _dataService.SaveData.debtTo2Friend = true;
             _dataService.AddDebt(100f);
-            _messageManager.AddNewFriendDebtMessage(1);
+            _messageService.AddNewFriendDebtMessage(1);
         }
     }
 
@@ -203,7 +205,7 @@ public class MapNav : MonoBehaviour
         {
             _dataService.SaveData.debtTo3Friend = true;
             _dataService.AddDebt(100f);
-            _messageManager.AddNewFriendDebtMessage(2);
+            _messageService.AddNewFriendDebtMessage(2);
         }
     }
 
@@ -213,7 +215,7 @@ public class MapNav : MonoBehaviour
         {
             _dataService.SaveData.debtTo4Friend = true;
             _dataService.AddDebt(100f);
-            _messageManager.AddNewFriendDebtMessage(3);
+            _messageService.AddNewFriendDebtMessage(3);
         }
     }
 
@@ -223,7 +225,7 @@ public class MapNav : MonoBehaviour
         {
             _dataService.SaveData.debtTo5Friend = true;
             _dataService.AddDebt(100f);
-            _messageManager.AddNewFriendDebtMessage(4);
+            _messageService.AddNewFriendDebtMessage(4);
         }
     }
 }

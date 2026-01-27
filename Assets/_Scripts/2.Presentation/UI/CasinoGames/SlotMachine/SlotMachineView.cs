@@ -2,7 +2,6 @@ using System.Collections;
 using Module.Core;
 using Module.Gameplay;
 using Module.Presentation.Audio;
-using Module.Presentation.Visual;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -33,10 +32,10 @@ namespace Module.Presentation.UI
         [SerializeField] private Button _minBetButton;
 
         [Header("Dependencies")]
-        [SerializeField] private MessageManager _messageManager;
         [SerializeField] private SlotMachineAudioView _audioView;
 
         private IDataService _dataService;
+        private MessageService _messageService;
         private SlotMachineService _game;
 
         private float _betChangeDelta;
@@ -46,10 +45,11 @@ namespace Module.Presentation.UI
         private float CurrentBalance => _dataService.SaveData.balance;
 
         [Inject]
-        public void Construct(IDataService dataService, SlotMachineService game)
+        public void Construct(IDataService dataService, SlotMachineService game, MessageService message)
         {
             _dataService = dataService;
             _game = game;
+            _messageService = message;
         }
 
         private void Awake()
@@ -200,12 +200,12 @@ namespace Module.Presentation.UI
                 _dataService.ChangeBalance(win);
                 _audioView.PlayWinByMultiplier(multiplier);
 
-                if (multiplier >= 10) _messageManager.AddBigWinMessage();
+                if (multiplier >= 10) _messageService.AddBigWinMessage();
             }
             else
             {
                 if (CurrentBalance < SlotMachineConfig.MinBet)
-                    _messageManager.AddBigLossMessage();
+                    _messageService.AddBigLossMessage();
             }
 
             UpdateUIFromState();
