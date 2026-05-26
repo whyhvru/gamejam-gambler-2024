@@ -2,12 +2,24 @@
 
 Experimental UI-driven gambling simulator about debt and obsession.
 
+<p align="center">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/banner.png?raw=true" width="50%">
+</p>
+
 ## About
 
 You are a man pushed to the edge.  
 Personal problems force you to seek your last chance at success — gambling.
 
 But how far are you willing to go?
+
+## Screenshots
+
+<p align="center">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-1.png?raw=true" width="33%">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-2.png?raw=true" width="33%">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-3.png?raw=true" width="33%">
+</p>
 
 ## Features
 
