@@ -16,9 +16,9 @@ But how far are you willing to go?
 ## Screenshots
 
 <p align="center">
-  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-1.png?raw=true" width="33%">
-  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-2.png?raw=true" width="33%">
-  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-3.png?raw=true" width="33%">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-1.png?raw=true" width="30%">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-2.png?raw=true" width="30%">
+  <img src="https://github.com/whyhvru/gamejam-gambler-2024/blob/main/screenshot-3.png?raw=true" width="30%">
 </p>
 
 ## Features
